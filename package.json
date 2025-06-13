@@ -20,7 +20,6 @@
     "react-hot-toast": "^2.4.1",
     "react-router-dom": "^6.15.0",
     "socket.io-client": "^4.7.2",
-    "@microsoft/cognitiveservices-speech-sdk": "^1.34.0",
     "openai": "^4.20.1",
     "elevenlabs": "^0.4.0",
     "heygen-streaming-avatar": "^1.0.0",
