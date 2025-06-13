@@ -27,7 +27,6 @@
     "react-player": "^2.13.0",
     "react-webcam": "^7.1.1",
     "face-api.js": "^0.22.2",
-    "tensorflow": "^4.10.0",
     "@tensorflow/tfjs": "^4.10.0",
     "react-markdown": "^9.0.1",
     "remark-gfm": "^4.0.0",
