@@ -9,11 +9,11 @@ import {
   ArrowRightIcon,
   PlayIcon,
   StarIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  VideoCameraIcon
 } from '@heroicons/react/24/outline'
 import ConversationalAI from '../components/ConversationalAI'
-import PremiumFeatures from '../components/PremiumFeatures'
-import VideoTutorials from '../components/VideoTutorials'
+import TavusVideoButton from '../components/TavusVideoButton'
 
 const Home: React.FC = () => {
   const features = [
@@ -91,10 +91,10 @@ const Home: React.FC = () => {
                   Start Saving Lives
                   <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Link>
-                <button className="btn-outline text-lg px-8 py-4 flex items-center justify-center">
-                  <PlayIcon className="mr-2 h-5 w-5" />
-                  Watch Demo
-                </button>
+                <TavusVideoButton 
+                  buttonText="Meet Dr. Vita"
+                  className="text-lg px-8 py-4"
+                />
               </div>
               <div className="flex items-center space-x-6 text-sm text-gray-600">
                 <div className="flex items-center">
@@ -125,7 +125,7 @@ const Home: React.FC = () => {
               />
               <div className="absolute inset-0 bg-primary-600 opacity-10 rounded-lg"></div>
               
-              {/* Floating AI Assistant Preview */}
+              {/* Floating Video Agent Preview */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -134,11 +134,11 @@ const Home: React.FC = () => {
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
-                    <HeartIcon className="h-5 w-5 text-white" />
+                    <VideoCameraIcon className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">AI Assistant</p>
-                    <p className="text-xs text-gray-600">Ready to help you donate!</p>
+                    <p className="text-sm font-semibold text-gray-900">Dr. Vita - AI Specialist</p>
+                    <p className="text-xs text-gray-600">Interactive video learning</p>
                   </div>
                 </div>
               </motion.div>
@@ -215,7 +215,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* AI Assistant Demo Section */}
+      {/* Dr. Vita Video Agent Demo Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -225,34 +225,43 @@ const Home: React.FC = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Meet Your AI Blood Donation Assistant
+                Meet Dr. Vita - Your AI Video Specialist
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                Our conversational AI is here to guide you through every step of the blood donation process. 
-                Get instant answers, learn about eligibility, and understand how blockchain technology 
-                keeps your donations secure and transparent.
+                Experience the future of interactive learning with our real-time AI video agent. 
+                Dr. Vita provides personalized guidance through immersive video conversations, 
+                making blood donation education engaging and memorable.
               </p>
               <div className="space-y-4 mb-8">
                 <div className="flex items-center">
                   <CheckCircleIcon className="h-5 w-5 text-green-500 mr-3" />
-                  <span className="text-gray-700">24/7 availability for questions and support</span>
+                  <span className="text-gray-700">Real-time video conversations with AI</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircleIcon className="h-5 w-5 text-green-500 mr-3" />
-                  <span className="text-gray-700">Voice interaction and text-to-speech</span>
+                  <span className="text-gray-700">Interactive mystery cases and assessments</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircleIcon className="h-5 w-5 text-green-500 mr-3" />
-                  <span className="text-gray-700">Personalized guidance based on your profile</span>
+                  <span className="text-gray-700">Personalized learning paths and storytelling</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircleIcon className="h-5 w-5 text-green-500 mr-3" />
-                  <span className="text-gray-700">Video avatar for enhanced interaction</span>
+                  <span className="text-gray-700">Voice interaction and emotional intelligence</span>
                 </div>
               </div>
-              <p className="text-sm text-gray-500">
-                Click the chat button in the bottom right corner to start talking with our AI assistant!
-              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <TavusVideoButton 
+                  triggerHook="life-saving-detective"
+                  buttonText="Try Mystery Case"
+                  className="justify-center"
+                />
+                <TavusVideoButton 
+                  triggerHook="donation-impact-calculator"
+                  buttonText="Take Assessment"
+                  className="justify-center bg-secondary-600 hover:bg-secondary-700"
+                />
+              </div>
             </motion.div>
             
             <motion.div
@@ -263,28 +272,43 @@ const Home: React.FC = () => {
             >
               <div className="bg-white rounded-lg shadow-xl p-6">
                 <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
-                    <HeartIcon className="h-5 w-5 text-white" />
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
+                    <VideoCameraIcon className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">AI Assistant</h4>
-                    <p className="text-sm text-gray-600">Always here to help</p>
+                    <h4 className="font-semibold text-gray-900">Dr. Vita</h4>
+                    <p className="text-sm text-gray-600">AI Blood Donation Specialist</p>
+                  </div>
+                  <div className="ml-auto">
+                    <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                   </div>
                 </div>
+                
+                {/* Video Preview */}
+                <div className="bg-gray-900 rounded-lg h-48 flex items-center justify-center mb-4">
+                  <div className="text-center text-white">
+                    <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full mx-auto mb-3 flex items-center justify-center">
+                      <HeartIcon className="h-8 w-8" />
+                    </div>
+                    <p className="text-sm">Interactive Video Learning</p>
+                  </div>
+                </div>
+
+                {/* Sample Conversation */}
                 <div className="space-y-3">
                   <div className="bg-gray-100 p-3 rounded-lg">
                     <p className="text-sm text-gray-900">
-                      Hello! I can help you learn about blood donation, check your eligibility, 
-                      and guide you through using our platform. What would you like to know?
+                      "Hello! I'm Dr. Vita. I can help you solve medical mysteries, 
+                      assess your donation potential, and guide you through our platform. 
+                      What would you like to explore today?"
                     </p>
                   </div>
                   <div className="bg-primary-600 text-white p-3 rounded-lg ml-8">
-                    <p className="text-sm">How do I know if I'm eligible to donate blood?</p>
+                    <p className="text-sm">I want to learn about blood donation safety</p>
                   </div>
                   <div className="bg-gray-100 p-3 rounded-lg">
                     <p className="text-sm text-gray-900">
-                      Great question! You're eligible if you're 18-65 years old, weigh at least 50kg, 
-                      and are in good health. I can walk you through a quick eligibility check!
+                      "Perfect! Let me share a real case that shows how safe our process is..."
                     </p>
                   </div>
                 </div>
@@ -524,9 +548,10 @@ const Home: React.FC = () => {
               <Link to="/register" className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105">
                 Get Started Free
               </Link>
-              <Link to="/about" className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105">
-                Learn More
-              </Link>
+              <TavusVideoButton 
+                buttonText="Talk to Dr. Vita"
+                className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105"
+              />
             </div>
           </motion.div>
         </div>
