@@ -29,8 +29,7 @@
     "face-api.js": "^0.22.2",
     "@tensorflow/tfjs": "^4.10.0",
     "react-markdown": "^9.0.1",
-    "remark-gfm": "^4.0.0",
-    "@tavus/tavus-js": "^1.0.0"
+    "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
