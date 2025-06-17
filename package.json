@@ -22,7 +22,6 @@
     "socket.io-client": "^4.7.2",
     "openai": "^4.20.1",
     "elevenlabs": "^0.4.0",
-    "heygen-streaming-avatar": "^1.0.0",
     "stripe": "^13.10.0",
     "react-player": "^2.13.0",
     "react-webcam": "^7.1.1",
