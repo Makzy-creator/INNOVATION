@@ -1,4 +1,6 @@
-# INNOVATION - Blockchain Blood Donation Platform
+# LIFEFLOW - Blockchain Blood Donation Platform
+
+**Your one pint of blood can save 5 Lives**
 
 A revolutionary blood donation platform built on Internet Computer Protocol (ICP) with smart contracts, NFT certificates, and real-time AI assistance.
 
@@ -167,4 +169,4 @@ MIT License - Built for saving lives through blockchain innovation.
 
 ---
 
-**Innovation** - Where blockchain meets humanitarian impact. Every donation matters, every life counts.
+**LIFEFLOW** - Where blockchain meets humanitarian impact. Your one pint of blood can save 5 Lives. Every donation matters, every life counts.
