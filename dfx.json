@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "canisters": {
+    "blood_donation_backend": {
+      "type": "motoko",
+      "main": "src/blood_donation_backend/main.mo"
+    },
+    "donation_nft": {
+      "type": "motoko", 
+      "main": "src/donation_nft/main.mo"
+    },
+    "frontend": {
+      "type": "assets",
+      "source": ["dist/"]
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    },
+    "ic": {
+      "providers": ["https://ic0.app"],
+      "type": "persistent"
+    }
+  }
+}

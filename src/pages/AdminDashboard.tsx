@@ -9,14 +9,16 @@ import {
   ChartBarIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  XCircleIcon
+  XCircleIcon,
+  VideoCameraIcon
 } from '@heroicons/react/24/outline'
 import { format } from 'date-fns'
+import TavusMetricsDashboard from '../components/TavusMetricsDashboard'
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth()
   const { donations, requests } = useICP()
-  const [activeTab, setActiveTab] = useState<'overview' | 'donations' | 'requests' | 'users'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'donations' | 'requests' | 'users' | 'tavus'>('overview')
 
   if (!user || user.role !== 'admin') {
     return (
@@ -137,24 +139,26 @@ const AdminDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-8 max-w-2xl"
+          className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-8 max-w-3xl"
         >
           {[
             { key: 'overview', label: 'Overview' },
             { key: 'donations', label: 'Donations' },
             { key: 'requests', label: 'Requests' },
-            { key: 'users', label: 'Users' }
+            { key: 'users', label: 'Users' },
+            { key: 'tavus', label: 'Dr. Vita Analytics', icon: VideoCameraIcon }
           ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all flex items-center justify-center space-x-2 ${
                 activeTab === tab.key
                   ? 'bg-white text-primary-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              {tab.label}
+              {tab.icon && <tab.icon className="h-4 w-4" />}
+              <span>{tab.label}</span>
             </button>
           ))}
         </motion.div>
@@ -433,6 +437,16 @@ const AdminDashboard: React.FC = () => {
               <UserGroupIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">User management features coming soon</p>
             </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'tavus' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <TavusMetricsDashboard />
           </motion.div>
         )}
       </div>
