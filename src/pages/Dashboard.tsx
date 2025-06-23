@@ -8,13 +8,16 @@ import {
   ClockIcon, 
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  PlusIcon
+  PlusIcon,
+  GiftIcon
 } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom'
+import WalletConnection from '../components/WalletConnection'
+import NFTCertificates from '../components/NFTCertificates'
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth()
-  const { donations, requests, isConnected, connectWallet } = useICP()
+  const { donations, requests, isConnected } = useICP()
 
   if (!user) {
     return (
@@ -36,6 +39,7 @@ const Dashboard: React.FC = () => {
   const userRequests = requests.filter(r => r.recipientId === user.id)
   const completedDonations = userDonations.filter(d => d.status === 'completed')
   const pendingRequests = requests.filter(r => r.status === 'open')
+  const nftCertificates = completedDonations.filter(d => d.nftTokenId).length
 
   const stats = [
     {
@@ -51,16 +55,16 @@ const Dashboard: React.FC = () => {
       color: 'text-yellow-600 bg-yellow-100'
     },
     {
+      name: 'NFT Certificates',
+      value: nftCertificates,
+      icon: GiftIcon,
+      color: 'text-purple-600 bg-purple-100'
+    },
+    {
       name: 'Lives Impacted',
       value: completedDonations.length * 3, // Assuming each donation can save 3 lives
       icon: UserGroupIcon,
       color: 'text-green-600 bg-green-100'
-    },
-    {
-      name: 'Success Rate',
-      value: '98%',
-      icon: CheckCircleIcon,
-      color: 'text-blue-600 bg-blue-100'
     }
   ]
 
@@ -112,32 +116,15 @@ const Dashboard: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* Wallet Connection Alert */}
-        {!isConnected && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4"
-          >
-            <div className="flex items-center">
-              <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400 mr-3" />
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-yellow-800">
-                  Connect Your Wallet
-                </h3>
-                <p className="text-sm text-yellow-700 mt-1">
-                  Connect your wallet to record donations on the blockchain and access all features.
-                </p>
-              </div>
-              <button
-                onClick={connectWallet}
-                className="ml-4 bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors"
-              >
-                Connect Wallet
-              </button>
-            </div>
-          </motion.div>
-        )}
+        {/* Wallet Connection */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-8"
+        >
+          <WalletConnection />
+        </motion.div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -146,7 +133,7 @@ const Dashboard: React.FC = () => {
               key={stat.name}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
               className="card p-6"
             >
               <div className="flex items-center">
@@ -168,7 +155,7 @@ const Dashboard: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
               className="card p-6"
             >
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -199,7 +186,7 @@ const Dashboard: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
+              transition={{ duration: 0.6, delay: 1.0 }}
               className="card p-6"
             >
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -219,12 +206,24 @@ const Dashboard: React.FC = () => {
                         }`} />
                       </div>
                       <div className="ml-4 flex-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {user.role === 'donor' ? 'Donation to' : 'Received from'} {donation.bloodType} recipient
-                        </p>
-                        <p className="text-sm text-gray-600">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-gray-900">
+                            {user.role === 'donor' ? 'Donation to' : 'Received from'} {donation.bloodType} {user.role === 'donor' ? 'recipient' : 'donor'}
+                          </p>
+                          {donation.nftTokenId && (
+                            <span className="bg-purple-100 text-purple-800 px-2 py-1 text-xs font-medium rounded-full">
+                              NFT #{donation.nftTokenId}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-600">
                           {donation.location} • {donation.timestamp.toLocaleDateString()}
                         </p>
+                        {donation.txHash && (
+                          <p className="text-xs text-blue-600 mt-1">
+                            Blockchain: {donation.txHash}
+                          </p>
+                        )}
                       </div>
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                         donation.status === 'completed' 
@@ -250,17 +249,26 @@ const Dashboard: React.FC = () => {
                         <p className="text-sm font-medium text-gray-900">
                           Blood Request - {request.bloodType}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs text-gray-600">
                           {request.location} • {request.timestamp.toLocaleDateString()}
                         </p>
                       </div>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        request.urgency === 'critical' 
-                          ? 'bg-red-100 text-red-800' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {request.urgency}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          request.urgency === 'critical' 
+                            ? 'bg-red-100 text-red-800' 
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {request.urgency}
+                        </span>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          request.status === 'open' 
+                            ? 'bg-yellow-100 text-yellow-800' 
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {request.status}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -279,6 +287,20 @@ const Dashboard: React.FC = () => {
             </motion.div>
           </div>
         </div>
+
+        {/* NFT Certificates Section */}
+        {isConnected && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.2 }}
+            className="mt-8"
+          >
+            <div className="card p-6">
+              <NFTCertificates />
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   )

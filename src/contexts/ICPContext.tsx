@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { Actor, HttpAgent } from '@dfinity/agent'
-import { Principal } from '@dfinity/principal'
+import ICPService from '../services/icpService'
 import toast from 'react-hot-toast'
 
 interface BloodDonation {
@@ -13,6 +12,8 @@ interface BloodDonation {
   location: string
   status: 'pending' | 'completed' | 'cancelled'
   txHash?: string
+  verified: boolean
+  nftTokenId?: number
 }
 
 interface BloodRequest {
@@ -29,16 +30,17 @@ interface BloodRequest {
 
 interface ICPContextType {
   isConnected: boolean
-  principal: Principal | null
+  principal: string | null
   donations: BloodDonation[]
   requests: BloodRequest[]
   connectWallet: () => Promise<boolean>
   disconnectWallet: () => void
-  recordDonation: (donation: Omit<BloodDonation, 'id' | 'timestamp' | 'txHash'>) => Promise<boolean>
+  recordDonation: (donation: Omit<BloodDonation, 'id' | 'timestamp' | 'txHash' | 'verified' | 'nftTokenId'>) => Promise<boolean>
   createBloodRequest: (request: Omit<BloodRequest, 'id' | 'timestamp'>) => Promise<boolean>
   fulfillRequest: (requestId: string, donorId: string) => Promise<boolean>
   getDonationHistory: (userId: string) => BloodDonation[]
   getBloodRequests: () => BloodRequest[]
+  registerDonor: (name: string, bloodType: string, location: string) => Promise<boolean>
   isLoading: boolean
 }
 
@@ -54,13 +56,81 @@ export const useICP = () => {
 
 export const ICPProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false)
-  const [principal, setPrincipal] = useState<Principal | null>(null)
+  const [principal, setPrincipal] = useState<string | null>(null)
   const [donations, setDonations] = useState<BloodDonation[]>([])
   const [requests, setRequests] = useState<BloodRequest[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    // Initialize with mock data
+    initializeICP()
+  }, [])
+
+  const initializeICP = async () => {
+    try {
+      await ICPService.initialize()
+      const connected = ICPService.isConnected()
+      setIsConnected(connected)
+      
+      if (connected) {
+        const principalText = ICPService.getPrincipalText()
+        setPrincipal(principalText)
+        await loadData()
+      }
+    } catch (error) {
+      console.error('Failed to initialize ICP:', error)
+    }
+  }
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true)
+      
+      // Load donations and requests from ICP canisters
+      const [donationsData, requestsData] = await Promise.all([
+        ICPService.getDonations(),
+        ICPService.getBloodRequests()
+      ])
+
+      // Transform the data to match our interface
+      const transformedDonations: BloodDonation[] = donationsData.map((d: any) => ({
+        id: d.id,
+        donorId: d.donorId.toText(),
+        recipientId: d.recipientId ? d.recipientId.toText() : '',
+        bloodType: d.bloodType,
+        amount: Number(d.amount),
+        timestamp: new Date(Number(d.timestamp) / 1000000), // Convert from nanoseconds
+        location: d.location,
+        status: d.verified ? 'completed' : 'pending',
+        txHash: d.txHash,
+        verified: d.verified,
+        nftTokenId: d.nftTokenId ? Number(d.nftTokenId) : undefined
+      }))
+
+      const transformedRequests: BloodRequest[] = requestsData.map((r: any) => ({
+        id: r.id,
+        recipientId: r.recipientId.toText(),
+        bloodType: r.bloodType,
+        amount: Number(r.amount),
+        urgency: r.urgency as any,
+        location: r.location,
+        timestamp: new Date(Number(r.timestamp) / 1000000),
+        status: r.status as any,
+        description: r.description || undefined
+      }))
+
+      setDonations(transformedDonations)
+      setRequests(transformedRequests)
+    } catch (error) {
+      console.error('Failed to load data from ICP:', error)
+      // Fallback to mock data for demo
+      loadMockData()
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const loadMockData = () => {
+    // Keep existing mock data as fallback
     const mockDonations: BloodDonation[] = [
       {
         id: '1',
@@ -71,18 +141,9 @@ export const ICPProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         timestamp: new Date('2024-01-15'),
         location: 'Lagos University Teaching Hospital',
         status: 'completed',
-        txHash: '0x1234...abcd'
-      },
-      {
-        id: '2',
-        donorId: 'donor2',
-        recipientId: 'recipient2',
-        bloodType: 'A-',
-        amount: 450,
-        timestamp: new Date('2024-01-10'),
-        location: 'General Hospital Ikeja',
-        status: 'completed',
-        txHash: '0x5678...efgh'
+        txHash: '0x1234...abcd',
+        verified: true,
+        nftTokenId: 1
       }
     ]
 
@@ -97,52 +158,50 @@ export const ICPProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         timestamp: new Date(),
         status: 'open',
         description: 'Urgent need for surgery patient'
-      },
-      {
-        id: '2',
-        recipientId: 'recipient4',
-        bloodType: 'AB-',
-        amount: 1,
-        urgency: 'high',
-        location: 'University College Hospital',
-        timestamp: new Date(),
-        status: 'open',
-        description: 'Emergency transfusion required'
       }
     ]
 
     setDonations(mockDonations)
     setRequests(mockRequests)
-  }, [])
+  }
 
   const connectWallet = async (): Promise<boolean> => {
     setIsLoading(true)
     try {
-      // Simulate wallet connection
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Mock principal
-      const mockPrincipal = Principal.fromText('rdmx6-jaaaa-aaaah-qcaiq-cai')
-      setPrincipal(mockPrincipal)
-      setIsConnected(true)
-      
-      toast.success('Wallet connected successfully!')
-      return true
+      const success = await ICPService.login()
+      if (success) {
+        setIsConnected(true)
+        const principalText = ICPService.getPrincipalText()
+        setPrincipal(principalText)
+        await loadData()
+        toast.success('Wallet connected successfully!')
+        return true
+      } else {
+        toast.error('Failed to connect wallet')
+        return false
+      }
     } catch (error) {
-      toast.error('Failed to connect wallet')
+      toast.error('Wallet connection failed')
       return false
     } finally {
       setIsLoading(false)
     }
   }
 
-  const disconnectWallet = () => {
-    setPrincipal(null)
-    setIsConnected(false)
-    toast.success('Wallet disconnected')
+  const disconnectWallet = async () => {
+    try {
+      await ICPService.logout()
+      setIsConnected(false)
+      setPrincipal(null)
+      setDonations([])
+      setRequests([])
+      toast.success('Wallet disconnected')
+    } catch (error) {
+      toast.error('Failed to disconnect wallet')
+    }
   }
 
-  const recordDonation = async (donation: Omit<BloodDonation, 'id' | 'timestamp' | 'txHash'>): Promise<boolean> => {
+  const registerDonor = async (name: string, bloodType: string, location: string): Promise<boolean> => {
     if (!isConnected) {
       toast.error('Please connect your wallet first')
       return false
@@ -150,19 +209,45 @@ export const ICPProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     setIsLoading(true)
     try {
-      // Simulate blockchain transaction
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      const newDonation: BloodDonation = {
-        ...donation,
-        id: Date.now().toString(),
-        timestamp: new Date(),
-        txHash: `0x${Math.random().toString(16).substr(2, 8)}...${Math.random().toString(16).substr(2, 4)}`
+      const result = await ICPService.registerDonor(name, bloodType, location)
+      if ('ok' in result) {
+        toast.success('Donor registered successfully!')
+        return true
+      } else {
+        toast.error(result.err)
+        return false
       }
-      
-      setDonations(prev => [newDonation, ...prev])
-      toast.success('Donation recorded on blockchain!')
-      return true
+    } catch (error) {
+      toast.error('Failed to register donor')
+      return false
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const recordDonation = async (donation: Omit<BloodDonation, 'id' | 'timestamp' | 'txHash' | 'verified' | 'nftTokenId'>): Promise<boolean> => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet first')
+      return false
+    }
+
+    setIsLoading(true)
+    try {
+      const result = await ICPService.recordDonation(
+        donation.recipientId || null,
+        donation.bloodType,
+        donation.amount,
+        donation.location
+      )
+
+      if ('ok' in result) {
+        await loadData() // Reload data to get the new donation with NFT
+        toast.success('Donation recorded on blockchain and NFT certificate minted!')
+        return true
+      } else {
+        toast.error(result.err)
+        return false
+      }
     } catch (error) {
       toast.error('Failed to record donation')
       return false
@@ -172,20 +257,29 @@ export const ICPProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }
 
   const createBloodRequest = async (request: Omit<BloodRequest, 'id' | 'timestamp'>): Promise<boolean> => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet first')
+      return false
+    }
+
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const newRequest: BloodRequest = {
-        ...request,
-        id: Date.now().toString(),
-        timestamp: new Date()
+      const result = await ICPService.createBloodRequest(
+        request.bloodType,
+        request.amount,
+        request.urgency,
+        request.location,
+        request.description
+      )
+
+      if ('ok' in result) {
+        await loadData()
+        toast.success('Blood request created successfully!')
+        return true
+      } else {
+        toast.error(result.err)
+        return false
       }
-      
-      setRequests(prev => [newRequest, ...prev])
-      toast.success('Blood request created successfully!')
-      return true
     } catch (error) {
       toast.error('Failed to create blood request')
       return false
@@ -202,19 +296,16 @@ export const ICPProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     setIsLoading(true)
     try {
-      // Simulate blockchain transaction
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const result = await ICPService.fulfillBloodRequest(requestId, donorId)
       
-      setRequests(prev => 
-        prev.map(req => 
-          req.id === requestId 
-            ? { ...req, status: 'fulfilled' as const }
-            : req
-        )
-      )
-      
-      toast.success('Blood request fulfilled!')
-      return true
+      if ('ok' in result) {
+        await loadData()
+        toast.success('Blood request fulfilled!')
+        return true
+      } else {
+        toast.error(result.err)
+        return false
+      }
     } catch (error) {
       toast.error('Failed to fulfill request')
       return false
@@ -245,6 +336,7 @@ export const ICPProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     fulfillRequest,
     getDonationHistory,
     getBloodRequests,
+    registerDonor,
     isLoading
   }
 
