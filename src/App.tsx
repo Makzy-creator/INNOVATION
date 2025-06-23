@@ -18,6 +18,7 @@ import Contact from './pages/Contact'
 import AdminDashboard from './pages/AdminDashboard'
 import PremiumFeatures from './components/PremiumFeatures'
 import VideoTutorials from './components/VideoTutorials'
+import TestPhase2 from './pages/TestPhase2'
 import './index.css'
 
 function App() {
@@ -31,7 +32,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
-                {/* <Route path="/login" element={<Login />} /> */}
+                <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/donor-profile" element={<DonorProfile />} />
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/premium" element={<PremiumFeatures />} />
                 <Route path="/tutorials" element={<VideoTutorials />} />
+                <Route path="/test-phase2" element={<TestPhase2 />} />
               </Routes>
             </main>
             <Footer />
