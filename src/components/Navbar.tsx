@@ -43,10 +43,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
               <BloodDropletLogo size="lg" animated />
-              <div className="flex flex-col">
-                <span className="text-xl font-bold text-gradient">LIFEFLOW</span>
-                <span className="text-xs text-gray-600 -mt-1">Your one pint of blood can save 5 Lives</span>
-              </div>
+              <span className="text-xl font-bold text-gradient">LIFEFLOW</span>
             </Link>
           </div>
 
