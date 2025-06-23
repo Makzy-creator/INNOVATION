@@ -30,8 +30,8 @@ class ICPService {
   private isAuthenticated = false;
 
   // Canister IDs (these would be set after deployment)
-  private readonly BLOOD_DONATION_CANISTER_ID = process.env.VITE_BLOOD_DONATION_CANISTER_ID || 'rdmx6-jaaaa-aaaah-qcaiq-cai';
-  private readonly NFT_CANISTER_ID = process.env.VITE_NFT_CANISTER_ID || 'rrkah-fqaaa-aaaah-qcuiq-cai';
+  private readonly BLOOD_DONATION_CANISTER_ID = import.meta.env.VITE_BLOOD_DONATION_CANISTER_ID || 'rdmx6-jaaaa-aaaah-qcaiq-cai';
+  private readonly NFT_CANISTER_ID = import.meta.env.VITE_NFT_CANISTER_ID || 'rrkah-fqaaa-aaaah-qcuiq-cai';
 
   async initialize() {
     try {
@@ -54,9 +54,9 @@ class ICPService {
 
     return new Promise((resolve) => {
       this.authClient!.login({
-        identityProvider: process.env.NODE_ENV === 'production' 
+        identityProvider: import.meta.env.MODE === 'production' 
           ? 'https://identity.ic0.app'
-          : `http://localhost:4943/?canisterId=${process.env.VITE_INTERNET_IDENTITY_CANISTER_ID}`,
+          : `http://localhost:4943/?canisterId=${import.meta.env.VITE_INTERNET_IDENTITY_CANISTER_ID}`,
         onSuccess: async () => {
           await this.setupAgent();
           this.isAuthenticated = true;
@@ -87,11 +87,11 @@ class ICPService {
     
     this.agent = new HttpAgent({
       identity,
-      host: process.env.NODE_ENV === 'production' ? 'https://ic0.app' : 'http://localhost:4943'
+      host: import.meta.env.MODE === 'production' ? 'https://ic0.app' : 'http://localhost:4943'
     });
 
     // Fetch root key for local development
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.MODE !== 'production') {
       await this.agent.fetchRootKey();
     }
 
