@@ -71,6 +71,27 @@ body {
   @apply bg-gradient-to-r from-primary-600 to-secondary-600;
 }
 
+/* Animated Text for "5 Lives" */
+.animated-text {
+  display: inline-block;
+  animation: pulseGlow 2s ease-in-out infinite;
+  position: relative;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    text-shadow: 
+      0 0 20px rgba(220, 38, 38, 0.6),
+      0 0 30px rgba(220, 38, 38, 0.4),
+      0 0 40px rgba(220, 38, 38, 0.2);
+  }
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {
