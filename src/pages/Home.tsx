@@ -85,9 +85,14 @@ const Home: React.FC = () => {
                   <span className="text-gradient">LIFEFLOW</span>
                 </h1>
               </div>
-              <p className="text-xl md:text-2xl text-gray-600 mb-4">
-                Your one pint of blood can save 5 Lives
-              </p>
+              
+              {/* Bold Catchphrase */}
+              <div className="mb-6">
+                <p className="text-2xl md:text-3xl font-bold text-primary-600 leading-tight">
+                  Your one pint of blood can save 5 Lives
+                </p>
+              </div>
+              
               <p className="text-lg text-gray-600 mb-8">
                 The world's first blockchain-powered blood donation platform with AI assistance. 
                 Connect donors with recipients instantly and transparently.
