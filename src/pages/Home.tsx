@@ -2,7 +2,6 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
-  HeartIcon, 
   ShieldCheckIcon, 
   GlobeAltIcon, 
   UserGroupIcon,
@@ -14,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline'
 import ConversationalAI from '../components/ConversationalAI'
 import TavusVideoButton from '../components/TavusVideoButton'
+import BloodDropletLogo from '../components/BloodDropletLogo'
 
 const Home: React.FC = () => {
   const features = [
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
       description: 'AI-powered algorithms match donors with recipients based on compatibility and urgency.'
     },
     {
-      icon: HeartIcon,
+      icon: BloodDropletLogo,
       title: 'Life-Saving Impact',
       description: 'Track your donation impact and see how many lives you\'ve helped save.'
     }
@@ -50,7 +50,7 @@ const Home: React.FC = () => {
     {
       name: 'Dr. Sarah Johnson',
       role: 'Emergency Medicine Physician',
-      content: 'Innovation has revolutionized how we handle blood requests. The blockchain transparency gives us complete confidence in the donation process.',
+      content: 'LIFEFLOW has revolutionized how we handle blood requests. The blockchain transparency gives us complete confidence in the donation process.',
       avatar: 'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'
     },
     {
@@ -79,10 +79,16 @@ const Home: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-                Save Lives with <span className="text-gradient">Innovation</span>
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-600 mb-8">
+              <div className="flex items-center space-x-3 mb-6">
+                <BloodDropletLogo size="xl" animated />
+                <h1 className="text-4xl md:text-6xl font-bold text-gray-900">
+                  <span className="text-gradient">LIFEFLOW</span>
+                </h1>
+              </div>
+              <p className="text-xl md:text-2xl text-gray-600 mb-4">
+                Your one pint of blood can save 5 Lives
+              </p>
+              <p className="text-lg text-gray-600 mb-8">
                 The world's first blockchain-powered blood donation platform with AI assistance. 
                 Connect donors with recipients instantly and transparently.
               </p>
@@ -198,7 +204,11 @@ const Home: React.FC = () => {
               >
                 <div className="flex items-start space-x-4">
                   <div className="bg-primary-100 p-3 rounded-lg">
-                    <feature.icon className="h-8 w-8 text-primary-600" />
+                    {feature.icon === BloodDropletLogo ? (
+                      <BloodDropletLogo size="md" />
+                    ) : (
+                      <feature.icon className="h-8 w-8 text-primary-600" />
+                    )}
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-3">
@@ -288,7 +298,7 @@ const Home: React.FC = () => {
                 <div className="bg-gray-900 rounded-lg h-48 flex items-center justify-center mb-4">
                   <div className="text-center text-white">
                     <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full mx-auto mb-3 flex items-center justify-center">
-                      <HeartIcon className="h-8 w-8" />
+                      <BloodDropletLogo size="md" />
                     </div>
                     <p className="text-sm">Interactive Video Learning</p>
                   </div>
@@ -493,7 +503,7 @@ const Home: React.FC = () => {
               Trusted by Healthcare Professionals
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              See what doctors, donors, and healthcare organizations say about Innovation
+              See what doctors, donors, and healthcare organizations say about LIFEFLOW
             </p>
           </motion.div>
 
@@ -537,11 +547,14 @@ const Home: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Ready to Save Lives?
-            </h2>
+            <div className="flex items-center justify-center space-x-3 mb-6">
+              <BloodDropletLogo size="lg" />
+              <h2 className="text-3xl md:text-4xl font-bold">
+                Ready to Save Lives?
+              </h2>
+            </div>
             <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-              Join thousands of donors and recipients using Innovation to make blood donation 
+              Join thousands of donors and recipients using LIFEFLOW to make blood donation 
               more transparent, secure, and efficient than ever before.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

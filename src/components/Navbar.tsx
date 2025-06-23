@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useICP } from '../contexts/ICPContext'
-import { Bars3Icon, XMarkIcon, HeartIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
+import BloodDropletLogo from './BloodDropletLogo'
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -40,9 +41,12 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <HeartIcon className="h-8 w-8 text-primary-600" />
-              <span className="text-xl font-bold text-gradient">Innovation</span>
+            <Link to="/" className="flex items-center space-x-3">
+              <BloodDropletLogo size="lg" animated />
+              <div className="flex flex-col">
+                <span className="text-xl font-bold text-gradient">LIFEFLOW</span>
+                <span className="text-xs text-gray-600 -mt-1">Your one pint of blood can save 5 Lives</span>
+              </div>
             </Link>
           </div>
 
