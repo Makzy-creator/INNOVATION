@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   GiftIcon, 
   ShareIcon, 
-  DownloadIcon,
+  ArrowDownTrayIcon,
   CalendarIcon,
   MapPinIcon,
   HeartIcon
@@ -223,7 +223,7 @@ const NFTCertificates: React.FC = () => {
                   }}
                   className="flex-1 flex items-center justify-center space-x-1 bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
                 >
-                  <DownloadIcon className="h-4 w-4" />
+                  <ArrowDownTrayIcon className="h-4 w-4" />
                   <span>Download</span>
                 </button>
               </div>
@@ -304,7 +304,7 @@ const NFTCertificates: React.FC = () => {
                   onClick={() => handleDownload(selectedCertificate)}
                   className="flex-1 flex items-center justify-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-3 rounded-lg transition-colors"
                 >
-                  <DownloadIcon className="h-5 w-5" />
+                  <ArrowDownTrayIcon className="h-5 w-5" />
                   <span>Download</span>
                 </button>
               </div>
