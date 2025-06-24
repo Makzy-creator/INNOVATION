@@ -4,9 +4,11 @@ import {
   WalletIcon, 
   CheckCircleIcon, 
   ExclamationTriangleIcon,
-  ArrowPathIcon 
+  ArrowPathIcon,
+  InformationCircleIcon,
+  ClipboardDocumentIcon
 } from '@heroicons/react/24/outline';
-import ICPService from '../services/icpService';
+import { useICP } from '../contexts/ICPContext';
 import toast from 'react-hot-toast';
 
 interface WalletConnectionProps {
@@ -14,63 +16,28 @@ interface WalletConnectionProps {
 }
 
 const WalletConnection: React.FC<WalletConnectionProps> = ({ onConnectionChange }) => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [principal, setPrincipal] = useState<string | null>(null);
+  const { isConnected, principal, connectWallet, disconnectWallet, isLoading, canisterIds } = useICP();
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
-    initializeConnection();
-  }, []);
-
-  const initializeConnection = async () => {
-    try {
-      await ICPService.initialize();
-      const connected = ICPService.isConnected();
-      setIsConnected(connected);
-      
-      if (connected) {
-        const principalText = ICPService.getPrincipalText();
-        setPrincipal(principalText);
-      }
-      
-      onConnectionChange?.(connected);
-    } catch (error) {
-      console.error('Failed to initialize wallet connection:', error);
-    }
-  };
+    onConnectionChange?.(isConnected);
+  }, [isConnected, onConnectionChange]);
 
   const handleConnect = async () => {
-    setIsConnecting(true);
-    try {
-      const success = await ICPService.login();
-      if (success) {
-        setIsConnected(true);
-        const principalText = ICPService.getPrincipalText();
-        setPrincipal(principalText);
-        toast.success('Wallet connected successfully!');
-        onConnectionChange?.(true);
-      } else {
-        toast.error('Failed to connect wallet');
-      }
-    } catch (error) {
-      console.error('Wallet connection error:', error);
-      toast.error('Wallet connection failed');
-    } finally {
-      setIsConnecting(false);
+    const success = await connectWallet();
+    if (success) {
+      toast.success('🎉 Wallet connected! You can now use all blockchain features.');
     }
   };
 
   const handleDisconnect = async () => {
-    try {
-      await ICPService.logout();
-      setIsConnected(false);
-      setPrincipal(null);
-      toast.success('Wallet disconnected');
-      onConnectionChange?.(false);
-    } catch (error) {
-      console.error('Wallet disconnection error:', error);
-      toast.error('Failed to disconnect wallet');
-    }
+    await disconnectWallet();
+    toast.success('Wallet disconnected');
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copied to clipboard!`);
   };
 
   const formatPrincipal = (principal: string) => {
@@ -83,19 +50,82 @@ const WalletConnection: React.FC<WalletConnectionProps> = ({ onConnectionChange 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex items-center space-x-3 bg-green-50 border border-green-200 rounded-lg p-3"
+        className="bg-green-50 border border-green-200 rounded-lg p-4"
       >
-        <CheckCircleIcon className="h-5 w-5 text-green-600" />
-        <div className="flex-1">
-          <p className="text-sm font-medium text-green-900">Wallet Connected</p>
-          <p className="text-xs text-green-700">{formatPrincipal(principal || '')}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <CheckCircleIcon className="h-6 w-6 text-green-600" />
+            <div>
+              <p className="text-sm font-medium text-green-900">Wallet Connected</p>
+              <div className="flex items-center space-x-2">
+                <p className="text-xs text-green-700">{formatPrincipal(principal || '')}</p>
+                {principal && (
+                  <button
+                    onClick={() => copyToClipboard(principal, 'Principal ID')}
+                    className="text-green-600 hover:text-green-800"
+                  >
+                    <ClipboardDocumentIcon className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              className="text-xs text-green-700 hover:text-green-900 font-medium"
+            >
+              <InformationCircleIcon className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handleDisconnect}
+              className="text-sm text-green-700 hover:text-green-900 font-medium"
+            >
+              Disconnect
+            </button>
+          </div>
         </div>
-        <button
-          onClick={handleDisconnect}
-          className="text-sm text-green-700 hover:text-green-900 font-medium"
-        >
-          Disconnect
-        </button>
+
+        {showDetails && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-4 pt-4 border-t border-green-200"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div>
+                <p className="font-medium text-green-900 mb-1">Blockchain Status</p>
+                <p className="text-green-700">✅ Connected to Internet Computer</p>
+                <p className="text-green-700">✅ Smart contracts accessible</p>
+                <p className="text-green-700">✅ NFT minting enabled</p>
+              </div>
+              <div>
+                <p className="font-medium text-green-900 mb-1">Canister IDs</p>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-green-700">Blood Donation:</span>
+                    <button
+                      onClick={() => copyToClipboard(canisterIds.bloodDonation, 'Blood Donation Canister ID')}
+                      className="text-green-600 hover:text-green-800 font-mono text-xs"
+                    >
+                      {canisterIds.bloodDonation.slice(0, 8)}...
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-green-700">NFT System:</span>
+                    <button
+                      onClick={() => copyToClipboard(canisterIds.nft, 'NFT Canister ID')}
+                      className="text-green-600 hover:text-green-800 font-mono text-xs"
+                    >
+                      {canisterIds.nft.slice(0, 8)}...
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </motion.div>
     );
   }
@@ -116,13 +146,29 @@ const WalletConnection: React.FC<WalletConnectionProps> = ({ onConnectionChange 
             Connect your wallet to record donations on the blockchain, mint NFT certificates, 
             and access all platform features.
           </p>
-          <div className="mt-3">
+          
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center text-xs text-yellow-700">
+              <CheckCircleIcon className="h-3 w-3 mr-1" />
+              <span>Immutable donation records</span>
+            </div>
+            <div className="flex items-center text-xs text-yellow-700">
+              <CheckCircleIcon className="h-3 w-3 mr-1" />
+              <span>Automatic NFT certificate minting</span>
+            </div>
+            <div className="flex items-center text-xs text-yellow-700">
+              <CheckCircleIcon className="h-3 w-3 mr-1" />
+              <span>Transparent blockchain verification</span>
+            </div>
+          </div>
+          
+          <div className="mt-4">
             <button
               onClick={handleConnect}
-              disabled={isConnecting}
+              disabled={isLoading}
               className="inline-flex items-center space-x-2 bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isConnecting ? (
+              {isLoading ? (
                 <>
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
                   <span>Connecting...</span>
@@ -130,10 +176,17 @@ const WalletConnection: React.FC<WalletConnectionProps> = ({ onConnectionChange 
               ) : (
                 <>
                   <WalletIcon className="h-4 w-4" />
-                  <span>Connect Wallet</span>
+                  <span>Connect Internet Identity</span>
                 </>
               )}
             </button>
+          </div>
+          
+          <div className="mt-3 text-xs text-yellow-600">
+            <p>
+              <strong>New to Internet Computer?</strong> Internet Identity is a secure, 
+              passwordless authentication system. No extensions needed!
+            </p>
           </div>
         </div>
       </div>
