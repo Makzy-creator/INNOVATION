@@ -8,12 +8,12 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "compile": "hardhat compile",
-    "deploy:mumbai": "hardhat run scripts/deploy.js --network mumbai",
-    "deploy:polygon": "hardhat run scripts/deploy.js --network polygon",
-    "deploy:local": "hardhat run scripts/deploy.js --network hardhat",
-    "test:contracts": "hardhat test",
-    "verify:mumbai": "hardhat verify --network mumbai"
+    "compile": "npx hardhat compile",
+    "deploy:mumbai": "npx hardhat run scripts/deploy.js --network mumbai",
+    "deploy:polygon": "npx hardhat run scripts/deploy.js --network polygon",
+    "deploy:local": "npx hardhat run scripts/deploy.js --network hardhat",
+    "test:contracts": "npx hardhat test",
+    "verify:mumbai": "npx hardhat verify --network mumbai"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
