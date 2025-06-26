@@ -13,10 +13,19 @@
     "deploy:polygon": "npx hardhat run scripts/deploy.js --network polygon",
     "deploy:local": "npx hardhat run scripts/deploy.js --network hardhat",
     "test:contracts": "npx hardhat test",
-    "verify:mumbai": "npx hardhat verify --network mumbai"
+    "verify:mumbai": "npx hardhat verify --network mumbai",
+    "verify:polygon": "npx hardhat verify --network polygon"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
+    "@solana/web3.js": "^1.87.6",
+    "@solana/wallet-adapter-base": "^0.9.23",
+    "@solana/wallet-adapter-react": "^0.15.35",
+    "@solana/wallet-adapter-react-ui": "^0.9.35",
+    "@solana/wallet-adapter-wallets": "^0.19.32",
+    "@supabase/supabase-js": "^2.39.0",
+    "@web3modal/ethereum": "^2.7.1",
+    "@web3modal/react": "^2.7.1",
     "date-fns": "^2.30.0",
     "ethers": "^6.8.0",
     "framer-motion": "^10.16.4",
@@ -28,11 +37,14 @@
     "react-router-dom": "^6.15.0",
     "react-webcam": "^7.1.1",
     "remark-gfm": "^4.0.0",
-    "socket.io-client": "^4.7.2"
+    "socket.io-client": "^4.7.2",
+    "wagmi": "^1.4.12",
+    "viem": "^1.19.9"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@openzeppelin/contracts": "^4.9.3",
+    "@openzeppelin/contracts-upgradeable": "^4.9.3",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
