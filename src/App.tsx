@@ -2,7 +2,6 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './contexts/AuthContext'
-import { ICPProvider } from './contexts/ICPContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -18,48 +17,44 @@ import Contact from './pages/Contact'
 import AdminDashboard from './pages/AdminDashboard'
 import PremiumFeatures from './components/PremiumFeatures'
 import VideoTutorials from './components/VideoTutorials'
-import TestPhase2 from './pages/TestPhase2'
 import './index.css'
 
 function App() {
   return (
     <AuthProvider>
-      <ICPProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Navbar />
-            <main>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/donor-profile" element={<DonorProfile />} />
-                <Route path="/recipient-profile" element={<RecipientProfile />} />
-                <Route path="/blood-requests" element={<BloodRequests />} />
-                <Route path="/donation-history" element={<DonationHistory />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/premium" element={<PremiumFeatures />} />
-                <Route path="/tutorials" element={<VideoTutorials />} />
-                <Route path="/test-phase2" element={<TestPhase2 />} />
-              </Routes>
-            </main>
-            <Footer />
-            <Toaster 
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-              }}
-            />
-          </div>
-        </Router>
-      </ICPProvider>
+      <Router>
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/donor-profile" element={<DonorProfile />} />
+              <Route path="/recipient-profile" element={<RecipientProfile />} />
+              <Route path="/blood-requests" element={<BloodRequests />} />
+              <Route path="/donation-history" element={<DonationHistory />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/premium" element={<PremiumFeatures />} />
+              <Route path="/tutorials" element={<VideoTutorials />} />
+            </Routes>
+          </main>
+          <Footer />
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+            }}
+          />
+        </div>
+      </Router>
     </AuthProvider>
   )
 }

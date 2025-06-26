@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import toast from 'react-hot-toast'
+import SupabaseService from '../services/supabaseService'
+import MultiChainService from '../services/multiChainService'
 
 interface User {
   id: string
@@ -9,6 +11,7 @@ interface User {
   bloodType?: string
   location?: string
   phone?: string
+  walletAddress?: string
   verified: boolean
 }
 
@@ -46,38 +49,64 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-    setIsLoading(false)
+    initializeAuth()
   }, [])
+
+  const initializeAuth = async () => {
+    try {
+      // Initialize multi-chain service
+      await MultiChainService.initialize()
+      
+      // Check for existing session
+      const currentUser = await SupabaseService.getCurrentUser()
+      if (currentUser) {
+        const profile = await SupabaseService.getUserProfile(currentUser.id)
+        if (profile) {
+          setUser({
+            id: profile.id,
+            email: profile.email,
+            name: profile.full_name,
+            role: profile.role,
+            bloodType: profile.blood_type || undefined,
+            location: profile.location || undefined,
+            phone: profile.phone || undefined,
+            walletAddress: profile.wallet_address || undefined,
+            verified: profile.verified
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Auth initialization failed:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock user data - in real app, this would come from your backend
-      const mockUser: User = {
-        id: '1',
-        email,
-        name: email.split('@')[0],
-        role: email.includes('admin') ? 'admin' : 'donor',
-        bloodType: 'O+',
-        location: 'Lagos, Nigeria',
-        phone: '+234 123 456 7890',
-        verified: true
+      const authData = await SupabaseService.signIn(email, password)
+      if (authData.user) {
+        const profile = await SupabaseService.getUserProfile(authData.user.id)
+        if (profile) {
+          setUser({
+            id: profile.id,
+            email: profile.email,
+            name: profile.full_name,
+            role: profile.role,
+            bloodType: profile.blood_type || undefined,
+            location: profile.location || undefined,
+            phone: profile.phone || undefined,
+            walletAddress: profile.wallet_address || undefined,
+            verified: profile.verified
+          })
+          toast.success('Login successful!')
+          return true
+        }
       }
-      
-      setUser(mockUser)
-      localStorage.setItem('user', JSON.stringify(mockUser))
-      toast.success('Login successful!')
-      return true
+      return false
     } catch (error) {
-      toast.error('Login failed. Please try again.')
+      toast.error('Login failed. Please check your credentials.')
       return false
     } finally {
       setIsLoading(false)
@@ -87,24 +116,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (userData: RegisterData): Promise<boolean> => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const authData = await SupabaseService.signUp(userData.email, userData.password, {
+        full_name: userData.name
+      })
       
-      const newUser: User = {
-        id: Date.now().toString(),
-        email: userData.email,
-        name: userData.name,
-        role: userData.role,
-        bloodType: userData.bloodType,
-        location: userData.location,
-        phone: userData.phone,
-        verified: false
+      if (authData.user) {
+        // Create user profile
+        const profile = await SupabaseService.createUserProfile({
+          id: authData.user.id,
+          email: userData.email,
+          full_name: userData.name,
+          role: userData.role,
+          blood_type: userData.bloodType,
+          location: userData.location,
+          phone: userData.phone,
+          verified: false
+        })
+        
+        if (profile) {
+          setUser({
+            id: profile.id,
+            email: profile.email,
+            name: profile.full_name,
+            role: profile.role,
+            bloodType: profile.blood_type || undefined,
+            location: profile.location || undefined,
+            phone: profile.phone || undefined,
+            walletAddress: profile.wallet_address || undefined,
+            verified: profile.verified
+          })
+          toast.success('Registration successful!')
+          return true
+        }
       }
-      
-      setUser(newUser)
-      localStorage.setItem('user', JSON.stringify(newUser))
-      toast.success('Registration successful!')
-      return true
+      return false
     } catch (error) {
       toast.error('Registration failed. Please try again.')
       return false
@@ -113,10 +158,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem('user')
-    toast.success('Logged out successfully!')
+  const logout = async () => {
+    try {
+      await SupabaseService.signOut()
+      await MultiChainService.disconnect()
+      setUser(null)
+      toast.success('Logged out successfully!')
+    } catch (error) {
+      toast.error('Logout failed')
+    }
   }
 
   const updateProfile = async (data: Partial<User>): Promise<boolean> => {
@@ -124,14 +174,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500))
+      const updateData: any = {}
+      if (data.name) updateData.full_name = data.name
+      if (data.bloodType) updateData.blood_type = data.bloodType
+      if (data.location) updateData.location = data.location
+      if (data.phone) updateData.phone = data.phone
+      if (data.walletAddress) updateData.wallet_address = data.walletAddress
       
-      const updatedUser = { ...user, ...data }
-      setUser(updatedUser)
-      localStorage.setItem('user', JSON.stringify(updatedUser))
-      toast.success('Profile updated successfully!')
-      return true
+      const updatedProfile = await SupabaseService.updateUserProfile(user.id, updateData)
+      if (updatedProfile) {
+        setUser(prev => prev ? { ...prev, ...data } : null)
+        toast.success('Profile updated successfully!')
+        return true
+      }
+      return false
     } catch (error) {
       toast.error('Failed to update profile.')
       return false

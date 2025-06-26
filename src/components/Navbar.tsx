@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { useICP } from '../contexts/ICPContext'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 import BloodDropletLogo from './BloodDropletLogo'
@@ -9,15 +8,11 @@ import BloodDropletLogo from './BloodDropletLogo'
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { user, logout } = useAuth()
-  const { isConnected, connectWallet, disconnectWallet } = useICP()
   const location = useLocation()
   const navigate = useNavigate()
 
   const handleLogout = () => {
     logout()
-    if (isConnected) {
-      disconnectWallet()
-    }
     navigate('/')
     setIsOpen(false)
   }
@@ -79,27 +74,15 @@ const Navbar: React.FC = () => {
 
             <div className="flex items-center space-x-4">
               {user ? (
-                <>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-700">Hi, {user.name}</span>
                   <button
-                    onClick={isConnected ? disconnectWallet : connectWallet}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isConnected
-                        ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                        : 'bg-secondary-600 text-white hover:bg-secondary-700'
-                    }`}
+                    onClick={handleLogout}
+                    className="text-sm text-primary-600 hover:text-primary-700 font-medium"
                   >
-                    {isConnected ? 'Wallet Connected' : 'Connect Wallet'}
+                    Logout
                   </button>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-700">Hi, {user.name}</span>
-                    <button
-                      onClick={handleLogout}
-                      className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </>
+                </div>
               ) : (
                 <div className="flex items-center space-x-4">
                   <Link
@@ -178,16 +161,6 @@ const Navbar: React.FC = () => {
               <div className="border-t border-gray-200 pt-4">
                 {user ? (
                   <div className="space-y-2">
-                    <button
-                      onClick={isConnected ? disconnectWallet : connectWallet}
-                      className={`w-full text-left px-3 py-2 rounded-md text-base font-medium ${
-                        isConnected
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-secondary-600 text-white'
-                      }`}
-                    >
-                      {isConnected ? 'Wallet Connected' : 'Connect Wallet'}
-                    </button>
                     <div className="px-3 py-2">
                       <span className="text-sm text-gray-700">Hi, {user.name}</span>
                     </div>
