@@ -1,7 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
-import { useICP } from '../contexts/ICPContext'
 import { 
   HeartIcon, 
   UserGroupIcon, 
@@ -9,15 +8,15 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   PlusIcon,
-  GiftIcon
+  GiftIcon,
+  CogIcon
 } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom'
-import WalletConnection from '../components/WalletConnection'
-import NFTCertificates from '../components/NFTCertificates'
+import WalletConnector from '../components/auth/WalletConnector'
+import RoleManager from '../components/auth/RoleManager'
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth()
-  const { donations, requests, isConnected } = useICP()
 
   if (!user) {
     return (
@@ -33,36 +32,29 @@ const Dashboard: React.FC = () => {
     )
   }
 
-  const userDonations = donations.filter(d => 
-    d.donorId === user.id || d.recipientId === user.id
-  )
-  const userRequests = requests.filter(r => r.recipientId === user.id)
-  const completedDonations = userDonations.filter(d => d.status === 'completed')
-  const pendingRequests = requests.filter(r => r.status === 'open')
-  const nftCertificates = completedDonations.filter(d => d.nftTokenId).length
-
+  // Mock data - in real app this would come from Supabase
   const stats = [
     {
       name: user.role === 'donor' ? 'Total Donations' : 'Received Donations',
-      value: completedDonations.length,
+      value: 5,
       icon: HeartIcon,
       color: 'text-red-600 bg-red-100'
     },
     {
       name: 'Active Requests',
-      value: pendingRequests.length,
+      value: 3,
       icon: ClockIcon,
       color: 'text-yellow-600 bg-yellow-100'
     },
     {
       name: 'NFT Certificates',
-      value: nftCertificates,
+      value: 5,
       icon: GiftIcon,
       color: 'text-purple-600 bg-purple-100'
     },
     {
       name: 'Lives Impacted',
-      value: completedDonations.length * 3, // Assuming each donation can save 3 lives
+      value: 15,
       icon: UserGroupIcon,
       color: 'text-green-600 bg-green-100'
     }
@@ -74,7 +66,7 @@ const Dashboard: React.FC = () => {
       description: user.role === 'donor' 
         ? 'Browse urgent blood requests in your area' 
         : 'Request blood for yourself or someone else',
-      href: user.role === 'donor' ? '/blood-requests' : '/blood-requests',
+      href: '/blood-requests',
       icon: PlusIcon,
       color: 'bg-primary-600 hover:bg-primary-700'
     },
@@ -113,6 +105,20 @@ const Dashboard: React.FC = () => {
                 : 'Here\'s your dashboard overview and recent activity.'
               }
             </p>
+            <div className="mt-2 flex items-center space-x-2">
+              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                user.role === 'donor' ? 'bg-red-100 text-red-800' :
+                user.role === 'recipient' ? 'bg-blue-100 text-blue-800' :
+                'bg-purple-100 text-purple-800'
+              }`}>
+                {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+              </span>
+              {user.verified && (
+                <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                  Verified
+                </span>
+              )}
+            </div>
           </motion.div>
         </div>
 
@@ -123,7 +129,7 @@ const Dashboard: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mb-8"
         >
-          <WalletConnection />
+          <WalletConnector />
         </motion.div>
 
         {/* Stats Grid */}
@@ -193,114 +199,75 @@ const Dashboard: React.FC = () => {
                 Recent Activity
               </h2>
               
-              {userDonations.length > 0 || userRequests.length > 0 ? (
-                <div className="space-y-4">
-                  {/* Recent Donations */}
-                  {userDonations.slice(0, 3).map((donation) => (
-                    <div key={donation.id} className="flex items-center p-4 bg-gray-50 rounded-lg">
-                      <div className={`p-2 rounded-full ${
-                        donation.status === 'completed' ? 'bg-green-100' : 'bg-yellow-100'
-                      }`}>
-                        <HeartIcon className={`h-5 w-5 ${
-                          donation.status === 'completed' ? 'text-green-600' : 'text-yellow-600'
-                        }`} />
-                      </div>
-                      <div className="ml-4 flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-gray-900">
-                            {user.role === 'donor' ? 'Donation to' : 'Received from'} {donation.bloodType} {user.role === 'donor' ? 'recipient' : 'donor'}
-                          </p>
-                          {donation.nftTokenId && (
-                            <span className="bg-purple-100 text-purple-800 px-2 py-1 text-xs font-medium rounded-full">
-                              NFT #{donation.nftTokenId}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-600">
-                          {donation.location} • {donation.timestamp.toLocaleDateString()}
-                        </p>
-                        {donation.txHash && (
-                          <p className="text-xs text-blue-600 mt-1">
-                            Blockchain: {donation.txHash}
-                          </p>
-                        )}
-                      </div>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        donation.status === 'completed' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {donation.status}
-                      </span>
-                    </div>
-                  ))}
+              {/* Mock recent activity */}
+              <div className="space-y-4">
+                <div className="flex items-center p-4 bg-gray-50 rounded-lg">
+                  <div className="bg-green-100 p-2 rounded-full mr-3">
+                    <HeartIcon className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">
+                      {user.role === 'donor' ? 'Donation completed' : 'Blood received'}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      O+ Blood • 450ml • General Hospital
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      NFT Certificate #001 minted
+                    </p>
+                  </div>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                    Completed
+                  </span>
+                </div>
 
-                  {/* Recent Requests */}
-                  {userRequests.slice(0, 2).map((request) => (
-                    <div key={request.id} className="flex items-center p-4 bg-gray-50 rounded-lg">
-                      <div className={`p-2 rounded-full ${
-                        request.urgency === 'critical' ? 'bg-red-100' : 'bg-blue-100'
-                      }`}>
-                        <ClockIcon className={`h-5 w-5 ${
-                          request.urgency === 'critical' ? 'text-red-600' : 'text-blue-600'
-                        }`} />
-                      </div>
-                      <div className="ml-4 flex-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          Blood Request - {request.bloodType}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {request.location} • {request.timestamp.toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          request.urgency === 'critical' 
-                            ? 'bg-red-100 text-red-800' 
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {request.urgency}
-                        </span>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          request.status === 'open' 
-                            ? 'bg-yellow-100 text-yellow-800' 
-                            : 'bg-green-100 text-green-800'
-                        }`}>
-                          {request.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex items-center p-4 bg-gray-50 rounded-lg">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <ClockIcon className="h-5 w-5 text-yellow-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">
+                      Blood request created
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      A+ Blood • 2 units • City Medical Center
+                    </p>
+                  </div>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                    Open
+                  </span>
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <ClockIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No recent activity</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {user.role === 'donor' 
-                      ? 'Start by browsing blood requests in your area'
-                      : 'Create your first blood request to get started'
-                    }
-                  </p>
+
+                <div className="flex items-center p-4 bg-gray-50 rounded-lg">
+                  <div className="bg-blue-100 p-2 rounded-full mr-3">
+                    <CheckCircleIcon className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">
+                      Profile verified
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Account verification completed
+                    </p>
+                  </div>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                    Verified
+                  </span>
                 </div>
-              )}
+              </div>
             </motion.div>
           </div>
         </div>
 
-        {/* NFT Certificates Section */}
-        {isConnected && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.2 }}
-            className="mt-8"
-          >
-            <div className="card p-6">
-              <NFTCertificates />
-            </div>
-          </motion.div>
-        )}
+        {/* Role Management Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.2 }}
+          className="mt-8"
+        >
+          <RoleManager />
+        </motion.div>
       </div>
     </div>
   )
