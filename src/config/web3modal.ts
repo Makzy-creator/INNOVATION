@@ -1,6 +1,5 @@
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
-import { WagmiConfig } from 'wagmi'
-import { polygon, polygonMumbai } from 'wagmi/chains'
+import { polygon, polygonMumbai } from 'viem/chains'
 
 // 1. Get projectId from https://cloud.walletconnect.com
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id'

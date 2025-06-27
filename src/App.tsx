@@ -19,6 +19,7 @@ import Contact from './pages/Contact'
 import AdminDashboard from './pages/AdminDashboard'
 import PremiumFeatures from './components/PremiumFeatures'
 import VideoTutorials from './components/VideoTutorials'
+import MatchingDashboard from './pages/MatchingDashboard'
 import './index.css'
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/premium" element={<PremiumFeatures />} />
                 <Route path="/tutorials" element={<VideoTutorials />} />
+                <Route path="/matching" element={<MatchingDashboard />} />
               </Routes>
             </main>
             <Footer />
